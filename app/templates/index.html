@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
+    <h1>{{ current_user.username }}</h1>
+    <h2>{{ current_user.location }}</h2>
     {% for meal in meals %}
-    <div><p>{{ meal.author.username }} {{ meal.body }}</p></div>
+    <div><p>{{ meal.author.username }} {{ meal.body }} on {{ meal.timestamp }} </p></div>
     {% endfor %}
 {% endblock %}
