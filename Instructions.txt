@@ -12,6 +12,7 @@
   (environment) $ pip install flask-migrate
   (environment) $ pip install flask-login
   (environment) $ pip install requests_oauthlib
+  (environment) $ pip install facebook-sdk
 
   
 4. Initiate your app
