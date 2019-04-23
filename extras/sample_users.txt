@@ -1,0 +1,3 @@
+u=User(facebook_id='110984786767563',email='djtefrfxeb_1555712760@tfbnw.net',username='Ava',password_hash='123456',name='Ava Alcefhabgcfee Putnamman',location='Boston',friends='[a,b,c]')
+
+u=User(facebook_id='100824297793232',email='ytsworqqic_1555712567@tfbnw.net',username='John',password_hash='abided',name='John Alceifihebfja Rosenthalescu',location='Boston',friends='[a,b,c]')
