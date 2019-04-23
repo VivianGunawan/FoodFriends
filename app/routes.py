@@ -6,6 +6,9 @@ from app.forms import LoginForm, RegistrationForm, Fb_Register_Form
 from app.models import User
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
+import urllib3
+import facebook
+import requests
 
 
 @app.route('/')
@@ -43,17 +46,6 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-def authorize():
-    client_id = 'HERE!!!'
-    client_secret = 'HERE!!!!'
-    authorization_base_url = 'https://www.facebook.com/dialog/oauth'
-    token_url = 'https://graph.facebook.com/oauth/access_token'
-    redirect_uri = 'http://localhost:5000/fb_register'     # Should match Site URL
-    fb = OAuth2Session(client_id, redirect_uri=redirect_uri)
-    fb= facebook_compliance_fix(fb)
-    authorization_url, state = fb.authorization_url(authorization_base_url)
-    return authorization_url
-
 @app.route('/register', methods=['GET', 'POST'])    
 def register():
     if current_user.is_authenticated:
@@ -70,7 +62,7 @@ def register():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    authorization_url=authorize()
+    authorization_url=authorize(client_id,client_secret)
     print(authorization_url)
     return render_template('register.html', title='Register', form=form, auth_url=authorization_url)
 
@@ -80,7 +72,14 @@ def fb_register():
         return redirect(url_for('index'))
     form = Fb_Register_Form()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        email=form.email.data
+        print(email)
+        info=extract(email)
+        id=info['id']
+        name=info['name']
+        location='Boston'
+        friends=str(info['friends'])
+        user = User(username=form.username.data, email=email, id=id, name=name, location=location, friends=friends)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -91,3 +90,55 @@ def fb_register():
             next_page = url_for('index')
         return redirect(next_page)
     return render_template('fb_register.html', title='Fb Register', form=form)
+
+
+# Facebook Oauth and API call 
+client_id = 'HERE'
+client_secret = 'HERE'
+
+def authorize(client_id,client_secret):
+    authorization_base_url = 'https://www.facebook.com/dialog/oauth'
+    token_url = 'https://graph.facebook.com/oauth/access_token'
+    redirect_uri = 'http://localhost:5000/fb_register'     # Should match Site URL
+    fb = OAuth2Session(client_id, redirect_uri=redirect_uri)
+    fb= facebook_compliance_fix(fb)
+    authorization_url, state = fb.authorization_url(authorization_base_url)
+    return authorization_url
+
+def get_fb_token(client_id,client_secret):
+
+    url = 'https://graph.facebook.com/oauth/access_token'       
+    payload = {
+        'grant_type': 'client_credentials',
+        'client_id': client_id,
+        'client_secret': client_secret
+    }
+    response = requests.post(url, params=payload)
+    app_token=response.json()['access_token']
+    return app_token
+def extract(user_email):
+    app_token=get_fb_token(client_id,client_secret)
+    graph = facebook.GraphAPI(access_token=app_token, version = 3.1)
+    users = 'https://graph.facebook.com/v3.1/app/accounts/test-users?access_token='+app_token
+    users = requests.get(users).json()
+    attributes=['id','email','name','location','friends']
+    for u in range(len(users['data'])):
+        user_token=users['data'][u]['access_token']
+        call_email="https://graph.facebook.com/v2.11/me?fields=email&access_token="+user_token
+        call_me="https://graph.facebook.com/v2.11/me?fields=name&access_token="+user_token
+        call_location="https://graph.facebook.com/v2.11/me?fields=location&access_token="+user_token
+        call_friends="https://graph.facebook.com/v2.11/me?fields=friends&access_token="+user_token
+        email =requests.get(call_email).json()['email']
+        if user_email==email:
+            id =requests.get(call_me).json()['id']
+            name=requests.get(call_me).json()['name']
+            location=requests.get(call_location).json()
+            raw_friends=requests.get(call_friends).json()
+            raw_friends=raw_friends['friends']['data']
+            friends=[]
+            for f in raw_friends:
+                friends.append(f['id'])
+            values=[id,email,name, location, friends]
+            user=dict(zip(attributes, values))
+            print(user)
+    return user
