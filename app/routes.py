@@ -4,6 +4,8 @@ from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, Fb_Register_Form
 from app.models import User
+from requests_oauthlib import OAuth2Session
+from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
 
 @app.route('/')
@@ -41,7 +43,18 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/register', methods=['GET', 'POST'])
+def authorize():
+    client_id = 'HERE!!!'
+    client_secret = 'HERE!!!!'
+    authorization_base_url = 'https://www.facebook.com/dialog/oauth'
+    token_url = 'https://graph.facebook.com/oauth/access_token'
+    redirect_uri = 'http://localhost:5000/fb_register'     # Should match Site URL
+    fb = OAuth2Session(client_id, redirect_uri=redirect_uri)
+    fb= facebook_compliance_fix(fb)
+    authorization_url, state = fb.authorization_url(authorization_base_url)
+    return authorization_url
+
+@app.route('/register', methods=['GET', 'POST'])    
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -57,7 +70,9 @@ def register():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template('register.html', title='Register', form=form)
+    authorization_url=authorize()
+    print(authorization_url)
+    return render_template('register.html', title='Register', form=form, auth_url=authorization_url)
 
 @app.route('/fb_register', methods=['GET', 'POST'])
 def fb_register():
