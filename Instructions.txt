@@ -1,0 +1,17 @@
+1. Create a virtual environment in python:
+  I named my virtual environment "environment"
+  $ python3 -m venv environment
+  
+2. Activate virtual environment
+  $ source environment/bin/activate
+  
+3. Install necesarry packages in environment
+  (environment) $ pip install flask
+  (environment) $ pip install flask-wtf
+  (environment) $ pip install flask-sqlalchemy
+  (environment) $ pip install flask-migrate
+  
+4. Initiate your app
+(environment) $ export FLASK_APP=foodfriends.py
+
+5.
