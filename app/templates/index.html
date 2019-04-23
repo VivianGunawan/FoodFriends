@@ -3,6 +3,6 @@
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
     {% for meal in meals %}
-    <div><p>{{ meal.author.username }} says: <b>{{ meal.body }}</b></p></div>
+    <div><p>{{ meal.author.username }} {{ meal.body }}</p></div>
     {% endfor %}
 {% endblock %}
