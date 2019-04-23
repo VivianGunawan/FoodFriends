@@ -14,4 +14,14 @@
 4. Initiate your app
 (environment) $ export FLASK_APP=foodfriends.py
 
-5.
+5.Working the database
+(environment) $ flask db init
+
+6.Generate migration script
+(environment) $ flask db migrate -m "users table"
+(environment) $ flask db migrate -m "meals table"
+
+7.Apply changes to database
+(environment) $ flask db upgrade
+
+
