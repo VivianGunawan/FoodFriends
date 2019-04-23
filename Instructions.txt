@@ -11,6 +11,7 @@
   (environment) $ pip install flask-sqlalchemy
   (environment) $ pip install flask-migrate
   (environment) $ pip install flask-login
+  (environment) $ pip install requests_oauthlib
 
   
 4. Initiate your app
