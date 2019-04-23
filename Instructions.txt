@@ -10,6 +10,8 @@
   (environment) $ pip install flask-wtf
   (environment) $ pip install flask-sqlalchemy
   (environment) $ pip install flask-migrate
+  (environment) $ pip install flask-login
+
   
 4. Initiate your app
 (environment) $ export FLASK_APP=foodfriends.py
